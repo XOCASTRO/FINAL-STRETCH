@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS staff_users (
   email VARCHAR(255) NOT NULL UNIQUE COMMENT 'Email for login',
   full_name VARCHAR(255) NOT NULL COMMENT 'Staff full name',
   password_hash VARCHAR(255) NOT NULL COMMENT 'Bcrypt hashed password',
-  role VARCHAR(50) NOT NULL COMMENT 'Role: ADMIN, DOCTOR, NURSE, STAFF, VIEWER',
+  role ENUM('ADMIN', 'RECEPTIONIST', 'DOCTOR', 'NURSE', 'VIEWER') NOT NULL COMMENT 'Role: ADMIN, RECEPTIONIST, DOCTOR, NURSE, VIEWER',
   can_create_records BOOLEAN DEFAULT FALSE COMMENT 'Permission to create medical records',
   can_create_staff BOOLEAN DEFAULT FALSE COMMENT 'Permission to create staff users',
   can_edit_records BOOLEAN DEFAULT FALSE COMMENT 'Permission to edit medical records',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS staff_users (
 
 -- Student Medical Files Table (Primary table for all medical records)
 CREATE TABLE IF NOT EXISTS student_files (
-  matric_number VARCHAR(50) PRIMARY KEY COMMENT 'Student matric number - unique identifier',
+  matric_number VARCHAR(50) PRIMARY KEY COMMENT 'Student matric number - unique identifier (Format: M.YYYY/LEVEL/DEPT/NUMBER)',
   student_name VARCHAR(255) NOT NULL COMMENT 'Full name of student',
   level VARCHAR(50) NOT NULL COMMENT 'Academic level (100, 200, 300, 400, etc)',
   date_of_birth DATE NOT NULL COMMENT 'Date of birth',
@@ -35,12 +35,20 @@ CREATE TABLE IF NOT EXISTS student_files (
   address TEXT COMMENT 'Physical address',
   parent_contact VARCHAR(20) COMMENT 'Parent/Guardian contact',
   emergency_contact VARCHAR(20) COMMENT 'Emergency contact number',
+  blood_group VARCHAR(10) COMMENT 'Blood type (O+, O-, A+, A-, B+, B-, AB+, AB-)',
+  department VARCHAR(100) COMMENT 'Department/Faculty',
+  session VARCHAR(20) COMMENT 'Academic session (e.g., 2024/2025)',
+  category ENUM('STUDENT', 'LECTURER', 'NON_STAFF') DEFAULT 'STUDENT' COMMENT 'Type of person (Student, Lecturer, or Non-staff)',
+  passport_filename VARCHAR(255) COMMENT 'Passport photo filename',
   created_by_staff_id INT COMMENT 'Staff member who created this record',
   date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation date',
   date_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last update date',
+  passport_uploaded_at TIMESTAMP NULL COMMENT 'Passport upload date',
   INDEX idx_email (email),
   INDEX idx_phone (phone),
   INDEX idx_created_by (created_by_staff_id),
+  INDEX idx_category (category),
+  INDEX idx_department (department),
   FOREIGN KEY (created_by_staff_id) REFERENCES staff_users(staff_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

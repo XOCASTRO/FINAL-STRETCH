@@ -13,6 +13,10 @@ interface FormData {
   address: string
   parent_contact: string
   emergency_contact: string
+  blood_group?: string
+  department?: string
+  session?: string
+  category?: 'STUDENT' | 'LECTURER' | 'NON_STAFF'
 }
 
 interface MedicalRecordFormProps {
@@ -33,6 +37,10 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
     address: '',
     parent_contact: '',
     emergency_contact: '',
+    blood_group: '',
+    department: '',
+    session: '',
+    category: 'STUDENT',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -152,6 +160,10 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
         address: '',
         parent_contact: '',
         emergency_contact: '',
+        blood_group: '',
+        department: '',
+        session: '',
+        category: 'STUDENT',
       })
       setMatricValidation(null)
 
@@ -197,7 +209,7 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
       {/* Matric Number */}
       <div>
         <label htmlFor="matric_number" className="block text-sm font-medium text-gray-700 mb-1">
-          Matric Number *
+          Matric Number * <span className="text-xs text-gray-500">(Format: M.YYYY/LEVEL/DEPT/NUMBER)</span>
         </label>
         <input
           id="matric_number"
@@ -206,7 +218,7 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
           value={formData.matric_number}
           onChange={handleChange}
           onBlur={handleMatricBlur}
-          placeholder="m.24/nd/001234"
+          placeholder="M.2024/ND/CS/00001"
           className={`w-full px-3 py-2 border rounded-md ${
             errors.matric_number ? 'border-red-500' : matricValidation?.valid ? 'border-green-500' : 'border-gray-300'
           }`}
@@ -350,6 +362,88 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
           placeholder="08011223344"
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
         />
+      </div>
+
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Medical Information</h3>
+
+        {/* Blood Group */}
+        <div>
+          <label htmlFor="blood_group" className="block text-sm font-medium text-gray-700 mb-1">
+            Blood Group
+          </label>
+          <select
+            id="blood_group"
+            name="blood_group"
+            value={formData.blood_group || ''}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Select blood group</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+          </select>
+        </div>
+
+        {/* Department */}
+        <div>
+          <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+            Department
+          </label>
+          <input
+            id="department"
+            type="text"
+            name="department"
+            value={formData.department || ''}
+            onChange={handleChange}
+            placeholder="e.g., Computer Science"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        {/* Session */}
+        <div>
+          <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1">
+            Academic Session
+          </label>
+          <input
+            id="session"
+            type="text"
+            name="session"
+            value={formData.session || ''}
+            onChange={handleChange}
+            placeholder="e.g., 2024/2025"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Category *
+          </label>
+          <div className="space-y-2">
+            {(['STUDENT', 'LECTURER', 'NON_STAFF'] as const).map((cat) => (
+              <label key={cat} className="flex items-center">
+                <input
+                  type="radio"
+                  name="category"
+                  value={cat}
+                  checked={formData.category === cat}
+                  onChange={handleChange}
+                  className="w-4 h-4"
+                />
+                <span className="ml-2 text-sm text-gray-700">{cat.replace('_', ' ')}</span>
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Submit Button */}
