@@ -25,7 +25,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
 const api = axios.create({
   baseURL: API_URL,
@@ -81,30 +81,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // Try API first
+      // Try API
       try {
-        const response = await api.post('/auth/login', { email, password })
-        if (response.data?.token) {
-          const newToken = response.data.token
+        const response = await api.post('/api/auth/login', { email, password })
+        if (response?.success && response?.token) {
+          const newToken = response.token
           localStorage.setItem('token', newToken)
           api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
           setToken(newToken)
-          setUser(response.data.user || { id: 1, email, role: 'ADMIN', full_name: email })
+          setUser(response.user || { id: 1, email, role: 'ADMIN', full_name: email })
           return
         }
-      } catch (apiError) {
-        // If API fails, use demo credentials
-        console.log('[v0] API login failed, using demo mode')
+      } catch (apiError: any) {
+        console.log('[v0] API login error:', apiError?.response?.data?.error || apiError.message)
+        throw new Error(apiError?.response?.data?.error || 'Login failed')
       }
-      
-      // Demo mode - accept any credentials
-      const demoToken = 'demo-token-' + Date.now()
-      localStorage.setItem('token', demoToken)
-      api.defaults.headers.common['Authorization'] = `Bearer ${demoToken}`
-      setToken(demoToken)
-      setUser({ id: 1, email, role: 'ADMIN', full_name: email || 'Admin User' })
-    } catch (error) {
-      throw new Error('Login failed')
+    } catch (error: any) {
+      throw error || new Error('Login failed')
     }
   }
 

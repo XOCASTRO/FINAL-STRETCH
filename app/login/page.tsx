@@ -9,7 +9,7 @@ import { AlertCircle, CheckCircle } from 'lucide-react'
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'appointment' | 'status'>('login')
   const [email, setEmail] = useState('admin@pticlinic.com')
-  const [password, setPassword] = useState('password')
+  const [password, setPassword] = useState('admin123')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
