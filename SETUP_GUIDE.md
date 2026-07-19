@@ -528,13 +528,78 @@ For issues or questions:
 
 ---
 
+## Enhanced Features (v1.1.0+)
+
+### Medical Records Management Page
+New dedicated page for managing individual patient records: `/medical-records/manage/[matric]`
+
+**Features:**
+- **Edit Student Information** - Update name, phone, email, address, emergency contact
+- **Allergies Management** - Add new allergies with severity levels, view history
+- **Treatments Management** - Add treatments with diagnosis, doctor name, follow-up tracking
+- **Prescriptions Management** - Add medications with dosage, frequency, duration
+- **Tabbed Interface** - Easy switching between different record types
+- **Real-time Updates** - Immediate feedback when adding records
+
+**Access:**
+- From Medical Records search page, click "Edit Record" button
+- Or direct URL: `/medical-records/manage/MTH/21/001`
+
+### Report Generation System
+All reports now use MySQL with enhanced performance:
+
+**Available Reports:**
+1. **Management Summary** (`/reports`)
+   - Key metrics overview
+   - Performance indicators
+   - Top doctors and medications
+   - Activity summary
+
+2. **Financial Reports** 
+   - Total revenue tracking
+   - Revenue by transaction type
+   - Payment method breakdown
+   - Transaction details
+
+3. **Patient Visits Report**
+   - Visit statistics by type
+   - Visits by doctor
+   - Complete visit details
+
+4. **Treatments Report**
+   - Total treatments count
+   - Top diagnoses distribution
+   - Treatments by doctor
+   - Follow-up requirements
+
+### Database Migration to MySQL
+All APIs fully migrated from PostgreSQL to MySQL:
+- ✓ Report generation endpoints
+- ✓ Medical records endpoints
+- ✓ Treatments, prescriptions, allergies endpoints
+- ✓ All queries use parameterized statements
+
+### Responsive UI Improvements
+- Better mobile support for manage records page
+- Improved form layouts
+- Enhanced error handling and validation
+- Loading states and user feedback
+
 ## Version Information
 
-- Database: MySQL 8.0+
-- Framework: Next.js 16
-- Authentication: Custom JWT
-- Password Hashing: bcryptjs
-- Status: Production Ready
+- **Database:** MySQL 5.7+ (fully migrated)
+- **Framework:** Next.js 16, React 19
+- **Authentication:** Custom JWT-based auth
+- **Password Hashing:** bcryptjs
+- **UI Library:** shadcn/ui + Tailwind CSS
+- **Status:** Production Ready
+
+**Current Version:** v1.1.0
+- Complete PostgreSQL to MySQL migration
+- Enhanced medical records management
+- Improved report generation system
+- Full CRUD operations for medical data
+- No features removed, all features upgraded
 
 Created: July 2026
 Last Updated: July 2026

@@ -1,54 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+import { query } from '@/lib/mysql-db';
 
 export async function GET(request: NextRequest) {
   try {
     const startDate = request.nextUrl.searchParams.get('start_date') || '2024-01-01';
     const endDate = request.nextUrl.searchParams.get('end_date') || new Date().toISOString().split('T')[0];
 
-    const client = await pool.connect();
-
     // Total treatments
-    const totalResult = await client.query(
-      `SELECT COUNT(*) as total FROM treatment_history WHERE visit_date BETWEEN $1 AND $2`,
+    const totalResult: any = await query(
+      `SELECT COUNT(*) as total FROM treatment_history WHERE visit_date BETWEEN ? AND ?`,
       [startDate, endDate]
     );
 
     // Top diagnoses
-    const diagnosisResult = await client.query(
+    const diagnosisResult: any = await query(
       `SELECT diagnosis, COUNT(*) as count FROM treatment_history 
-       WHERE visit_date BETWEEN $1 AND $2 GROUP BY diagnosis ORDER BY count DESC LIMIT 10`,
+       WHERE visit_date BETWEEN ? AND ? GROUP BY diagnosis ORDER BY count DESC LIMIT 10`,
       [startDate, endDate]
     );
 
     // Treatments by doctor
-    const doctorResult = await client.query(
+    const doctorResult: any = await query(
       `SELECT doctor_name, COUNT(*) as count FROM treatment_history 
-       WHERE visit_date BETWEEN $1 AND $2 GROUP BY doctor_name ORDER BY count DESC`,
+       WHERE visit_date BETWEEN ? AND ? GROUP BY doctor_name ORDER BY count DESC`,
       [startDate, endDate]
     );
 
     // Follow-up required
-    const followUpResult = await client.query(
+    const followUpResult: any = await query(
       `SELECT COUNT(*) as count FROM treatment_history 
-       WHERE visit_date BETWEEN $1 AND $2 AND follow_up_required = true`,
+       WHERE visit_date BETWEEN ? AND ? AND follow_up_required = true`,
       [startDate, endDate]
     );
 
     // All treatments
-    const treatmentsResult = await client.query(
-      `SELECT * FROM treatment_history WHERE visit_date BETWEEN $1 AND $2 ORDER BY visit_date DESC`,
+    const treatmentsResult: any = await query(
+      `SELECT * FROM treatment_history WHERE visit_date BETWEEN ? AND ? ORDER BY visit_date DESC`,
       [startDate, endDate]
     );
 
-    client.release();
-
-    const total = totalResult.rows[0].total;
-    const diagnosisData = diagnosisResult.rows.map(row => ({
+    const total = totalResult[0]?.total || 0;
+    const diagnosisData = diagnosisResult.map((row: any) => ({
       diagnosis: row.diagnosis,
       count: row.count,
       percentage: ((row.count / total) * 100).toFixed(1),
@@ -58,9 +50,9 @@ export async function GET(request: NextRequest) {
       total_treatments: total,
       period: `${startDate} to ${endDate}`,
       top_diagnoses: diagnosisData,
-      treatments_by_doctor: doctorResult.rows,
-      follow_up_required: followUpResult.rows[0].count,
-      details: treatmentsResult.rows,
+      treatments_by_doctor: doctorResult,
+      follow_up_required: followUpResult[0]?.count || 0,
+      details: treatmentsResult,
     });
   } catch (error) {
     console.error('Error generating treatments report:', error);

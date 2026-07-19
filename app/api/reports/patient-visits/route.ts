@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+import { query } from '@/lib/mysql-db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,51 +7,47 @@ export async function GET(request: NextRequest) {
     const endDate = request.nextUrl.searchParams.get('end_date') || new Date().toISOString().split('T')[0];
     const visitType = request.nextUrl.searchParams.get('visit_type');
 
-    const client = await pool.connect();
-
     // Total visits
-    let query = `SELECT COUNT(*) as total FROM clinic_visits WHERE visit_date BETWEEN $1 AND $2`;
+    let sql = `SELECT COUNT(*) as total FROM clinic_visits WHERE visit_date BETWEEN ? AND ?`;
     let params: any[] = [startDate, endDate];
 
     if (visitType) {
-      query += ` AND visit_type = $3`;
+      sql += ` AND visit_type = ?`;
       params.push(visitType);
     }
 
-    const totalResult = await client.query(query, params);
-    const total = totalResult.rows[0].total;
+    const totalResult: any = await query(sql, params);
+    const total = totalResult[0]?.total || 0;
 
     // Visits by type
-    const typeResult = await client.query(
+    const typeResult: any = await query(
       `SELECT visit_type, COUNT(*) as count FROM clinic_visits 
-       WHERE visit_date BETWEEN $1 AND $2 GROUP BY visit_type`,
+       WHERE visit_date BETWEEN ? AND ? GROUP BY visit_type`,
       [startDate, endDate]
     );
 
     // Visits by doctor
-    const doctorResult = await client.query(
+    const doctorResult: any = await query(
       `SELECT doctor_name, COUNT(*) as count FROM clinic_visits 
-       WHERE visit_date BETWEEN $1 AND $2 GROUP BY doctor_name ORDER BY count DESC`,
+       WHERE visit_date BETWEEN ? AND ? GROUP BY doctor_name ORDER BY count DESC`,
       [startDate, endDate]
     );
 
     // All visits
-    const visitsResult = await client.query(
-      `SELECT * FROM clinic_visits WHERE visit_date BETWEEN $1 AND $2 ORDER BY visit_date DESC`,
+    const visitsResult: any = await query(
+      `SELECT * FROM clinic_visits WHERE visit_date BETWEEN ? AND ? ORDER BY visit_date DESC`,
       [startDate, endDate]
     );
-
-    client.release();
 
     return NextResponse.json({
       total_visits: total,
       period: `${startDate} to ${endDate}`,
-      visits_by_type: typeResult.rows.reduce((acc: any, row) => {
+      visits_by_type: typeResult.reduce((acc: any, row: any) => {
         acc[row.visit_type] = row.count;
         return acc;
       }, {}),
-      visits_by_doctor: doctorResult.rows,
-      details: visitsResult.rows,
+      visits_by_doctor: doctorResult,
+      details: visitsResult,
     });
   } catch (error) {
     console.error('Error generating patient visits report:', error);
