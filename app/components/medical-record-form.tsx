@@ -197,7 +197,7 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
       {/* Matric Number */}
       <div>
         <label htmlFor="matric_number" className="block text-sm font-medium text-gray-700 mb-1">
-          Matric Number *
+          Matric Number * (Format: m.YY/CODE/SUBJECT/NUMBER)
         </label>
         <input
           id="matric_number"
@@ -206,7 +206,7 @@ export default function MedicalRecordForm({ onSuccess, canCreateRecords, staffId
           value={formData.matric_number}
           onChange={handleChange}
           onBlur={handleMatricBlur}
-          placeholder="m.24/nd/001234"
+          placeholder="m.24/nd/csit/14904"
           className={`w-full px-3 py-2 border rounded-md ${
             errors.matric_number ? 'border-red-500' : matricValidation?.valid ? 'border-green-500' : 'border-gray-300'
           }`}
