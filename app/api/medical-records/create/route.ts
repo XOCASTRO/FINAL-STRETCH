@@ -90,23 +90,23 @@ export async function POST(request: NextRequest) {
     const connection = await pool.getConnection()
 
     try {
-      const [result] = await connection.execute(
-        `INSERT INTO student_files 
-         (matric_number, student_name, level, date_of_birth, phone, email, address, parent_contact, emergency_contact, created_by_staff_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          matric_number.trim(),
-          student_name.trim(),
-          level,
-          date_of_birth,
-          phone || null,
-          email || null,
-          address || null,
-          parent_contact || null,
-          emergency_contact || null,
-          parseInt(staffIdHeader),
-        ]
-      )
+    const [result] = await connection.execute(
+      `INSERT INTO student_files 
+       (matric_number, student_name, level, date_of_birth, phone, email, address, parent_contact, emergency_contact, created_by_staff_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        matric_number.trim().toLowerCase(),
+        student_name.trim(),
+        level,
+        date_of_birth,
+        phone || null,
+        email || null,
+        address || null,
+        parent_contact || null,
+        emergency_contact || null,
+        parseInt(staffIdHeader),
+      ]
+    )
 
       connection.release()
 

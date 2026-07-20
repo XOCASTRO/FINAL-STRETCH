@@ -13,17 +13,17 @@ const pool = mysql.createPool({
 /**
  * Validate matric number format
  * Expected format: m.YY/CODE/XXXXXX
- * Example: m.24/nd/001234
+ * Example: m.24/nd/001234 (case-insensitive)
  */
 export function validateMatricFormat(matric: string): { valid: boolean; error?: string } {
   if (!matric || typeof matric !== 'string') {
     return { valid: false, error: 'Matric number is required' }
   }
 
-  const trimmed = matric.trim()
+  const trimmed = matric.trim().toLowerCase()
 
-  // Check if matches pattern: m.YY/CODE/XXXXXX
-  const matricPattern = /^m\.\d{2}\/[a-zA-Z]{2,4}\/\d{6}$/
+  // Check if matches pattern: m.YY/CODE/XXXXXX (case-insensitive)
+  const matricPattern = /^m\.\d{2}\/[a-z]{2,4}\/\d{6}$/
   if (!matricPattern.test(trimmed)) {
     return {
       valid: false,
@@ -40,7 +40,8 @@ export function validateMatricFormat(matric: string): { valid: boolean; error?: 
 export async function checkMatricExists(matric: string): Promise<boolean> {
   try {
     const connection = await pool.getConnection()
-    const [rows] = await connection.execute('SELECT matric_number FROM student_files WHERE matric_number = ?', [matric.trim()])
+    const normalizedMatric = matric.trim().toLowerCase()
+    const [rows] = await connection.execute('SELECT matric_number FROM student_files WHERE LOWER(matric_number) = ?', [normalizedMatric])
     connection.release()
     return rows.length > 0
   } catch (error) {
