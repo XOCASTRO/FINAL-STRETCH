@@ -42,9 +42,9 @@ export async function checkMatricExists(matric: string): Promise<boolean> {
   try {
     const connection = await pool.getConnection()
     const normalizedMatric = matric.trim().toLowerCase()
-    const [rows] = await connection.execute('SELECT matric_number FROM student_files WHERE LOWER(matric_number) = ?', [normalizedMatric])
+    const [rows] = await connection.execute('SELECT matric_number FROM student_files WHERE LOWER(matric_number) = ?', [normalizedMatric]) as any
     connection.release()
-    return rows.length > 0
+    return Array.isArray(rows) && rows.length > 0
   } catch (error) {
     console.error('Error checking matric uniqueness:', error)
     throw error
