@@ -12,8 +12,8 @@ const pool = mysql.createPool({
 
 /**
  * Validate matric number format
- * Expected format: m.YY/CODE/XXXXXX
- * Example: m.24/nd/001234 (case-insensitive)
+ * Expected format: m.YY/CODE/SUBJECT/NUMBER
+ * Example: m.24/nd/csit/14904 (case-insensitive)
  */
 export function validateMatricFormat(matric: string): { valid: boolean; error?: string } {
   if (!matric || typeof matric !== 'string') {
@@ -22,12 +22,13 @@ export function validateMatricFormat(matric: string): { valid: boolean; error?: 
 
   const trimmed = matric.trim().toLowerCase()
 
-  // Check if matches pattern: m.YY/CODE/XXXXXX (case-insensitive)
-  const matricPattern = /^m\.\d{2}\/[a-z]{2,4}\/\d{6}$/
+  // Check if matches pattern: m.YY/CODE/SUBJECT/NUMBER (case-insensitive)
+  // Allows flexible number of digits in the last section
+  const matricPattern = /^m\.\d{2}\/[a-z]{2,4}\/[a-z0-9]{2,}\/\d+$/
   if (!matricPattern.test(trimmed)) {
     return {
       valid: false,
-      error: 'Invalid format. Expected: m.24/nd/001234 (e.g., m.{YY}/{CODE}/{6-digit number})',
+      error: 'Invalid format. Expected: m.24/nd/csit/14904',
     }
   }
 
